@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Run Energy Restore Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .gold-text { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body onload="calculateRestoreTime()">
+    <h1>2004Scape Run Energy Restore Calculator</h1>
+    <div class="container">
+        <label>Current Run Energy (%):</label>
+        <input type="number" id="currentRunEnergy" min="0" max="100" value="0"><br>
+        <label>Agility Level:</label>
+        <input type="number" id="agilityLevel" min="1" max="99" value="1"><br>
+        <button onclick="calculateRestoreTime()">Calculate</button>
+        <h2>Time to Restore 1% Energy: <br><span id="restorePerPercent" class="gold-text"></span></h2>
+        <h2>Time to Restore to 100%: <br><span id="restoretime" class="gold-text"></span></h2>
+        <br>
+    </div>
+    <script>
+        function calculateRestoreTime() {
+            const currentRunEnergy = parseInt(document.getElementById("currentRunEnergy").value);
+            const agilityLevel = parseInt(document.getElementById("agilityLevel").value);
+            
+            // Calculate base recovery rate per 30 seconds
+            const recovered = Math.floor(agilityLevel / 9) + 8;
+            
+            // Convert to energy restored per tick (50 ticks per 30 seconds)
+            const recoveryPerTick = recovered / 50;
+            
+            // Calculate how many seconds it takes to restore 1% energy
+            const secondsPerPercent = 0.6 / recoveryPerTick * 2;
+
+            // Display time to restore 1% energy
+            document.getElementById("restorePerPercent").textContent = `${secondsPerPercent.toFixed(2)} seconds`;
+
+            // If the current Run Energy is already at 100%, no restoration time is needed
+            if (currentRunEnergy >= 100) {
+                alert("Run Energy is already at 100%.");
+                return;
+            }
+            
+            // Calculate energy to restore
+            const energyToRestore = 100 - currentRunEnergy;
+
+            // Calculate total restoration time
+            const timeToRestoreInSeconds = energyToRestore * secondsPerPercent;
+            
+            const minutes = Math.floor(timeToRestoreInSeconds / 60);
+            const seconds = Math.floor(timeToRestoreInSeconds % 60);
+            
+            let restoreTime = `${minutes} minutes and ${seconds} seconds`;
+            document.getElementById("restoretime").textContent = restoreTime;
+        }
+    </script>
+</body>
+</html>

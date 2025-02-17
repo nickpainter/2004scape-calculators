@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Prayer Duration Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        input, button, select { margin: 5px; font-size: 16px; }
+        p { color: gold; font-weight: bold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .gold-text { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>2004Scape Prayer Duration Calculator</h1>
+    <div class="container">
+        <label>Prayer Level:</label>
+        <input type="number" id="prayerLevel" min="1" max="99" value="1">
+        
+        <label>Prayer Bonus:</label>
+        <input type="number" id="prayerBonus" min="0" max="24" value="0">
+        
+        <button onclick="calculatePrayerDuration()">Calculate</button>
+        <br>
+        <p>Prayer</p>
+        <label>Select Prayer:</label>
+                <select id="prayer" onchange="calculatePrayerDuration()">
+                    <option value="5">Thick Skin</option>
+                    <option value="5">Burst of Strength</option>
+                    <option value="5">Clarity of Thought</option>
+                    <option value="10">Rock Skin</option>
+                    <option value="10">Superhuman Strength</option>
+                    <option value="10">Improved Reflexes</option>
+                    <option value="1.6667">Rapid Restore</option>
+                    <option value="3.3333">Rapid Heal</option>
+                    <option value="3">Protect Item</option>
+                    <option value="20">Steel Skin</option>
+                    <option value="20">Ultimate Strength</option>
+                    <option value="20">Incredible Reflexes</option>
+                    <option value="20">Protect from Magic</option>
+                    <option value="20">Protect from Missiles</option>
+                    <option value="20">Protect from Melee</option>
+                </select><br>
+        <p>Equipment</p>
+        <label>Necklace:</label>
+        <select id="necklace">
+            <option value="0">None</option>
+            <option value="1">Amulet of Power (+1)</option>
+            <option value="3">Amulet of Glory (+3)</option>
+            <option value="8">Holy Symbol (+8)</option>
+            <option value="8">Unholy Symbol (+8)</option>
+        </select><br>
+        <label>Weapon:</label>
+        <select id="weapon">
+            <option value="0">None</option>
+            <option value="1">Bronze Mace (+1)</option>
+            <option value="1">Iron Mace (+1)</option>
+            <option value="2">Steel Mace (+2)</option>
+            <option value="2">Black Mace (+2)</option>
+            <option value="3">Mithril Mace (+3)</option>
+            <option value="3">Adamant Mace (+3)</option>
+            <option value="4">Rune Mace (+4)</option>
+            <option value="5">Dragon Mace (+5)</option>
+        </select><br>
+        <label>Body:</label>
+        <select id="body">
+            <option value="0">None</option>
+            <option value="3">Priest Gown (+3)</option>
+            <option value="3">Zamorak Monk Top (+3)</option>
+            <option value="4">Druid's Robe Top (+4)</option>
+            <option value="5">Shade Robe Top (+5)</option>
+            <option value="6">Monk's Robe Top (+6)</option>
+        </select><br>
+        <label>Legs:</label>
+        <select id="legs">
+            <option value="0">None</option>
+            <option value="3">Priest Gown (+3)</option>
+            <option value="3">Zamorak Monk Bottom (+3)</option>
+            <option value="4">Druid's Robe (+4)</option>
+            <option value="4">Shade Robe (+4)</option>
+            <option value="5">Monk's Robe Bottom (+5)</option>
+        </select><br>
+        <h2>Your prayer will last: <br><span id="prayerDuration" class="gold-text"></span></h2>
+    </div>
+    
+    <script>
+        function calculatePrayerDuration() {
+            const prayerBonus = parseInt(document.getElementById("prayerBonus").value);
+            const prayerLevel = parseInt(document.getElementById("prayerLevel").value);
+            const drainRatePerMinute = parseFloat(document.getElementById("prayer").value);
+            
+            // Convert drain rate per minute to per second
+            const drainRatePerSecond = drainRatePerMinute / 60;
+            
+            // Calculate base duration (seconds total)
+            let baseDuration = prayerLevel / drainRatePerSecond;
+            
+            // Apply prayer bonus effect (each +1 increases duration by 3.333%)
+            let modifiedDuration = baseDuration * (1 + (prayerBonus * 0.0333));
+
+            // Convert seconds into minutes and seconds format
+            const minutes = Math.floor(modifiedDuration / 60);
+            const seconds = Math.round(modifiedDuration % 60);
+
+            let formattedDuration = minutes > 0 
+                ? `${minutes} minute and ${seconds} seconds`
+                : `${seconds} seconds`;
+            
+            document.getElementById("prayerDuration").textContent = formattedDuration;
+        }
+        
+        function calculateFromEquipment() {
+            const necklace = parseInt(document.getElementById("necklace").value);
+            const weapon = parseInt(document.getElementById("weapon").value);
+            const body = parseInt(document.getElementById("body").value);
+            const legs = parseInt(document.getElementById("legs").value);
+
+            const totalPrayerBonus = necklace + weapon + body + legs;
+            document.getElementById("prayerBonus").value = totalPrayerBonus;
+            calculatePrayerDuration();
+        }
+
+        document.getElementById("necklace").addEventListener("change", calculateFromEquipment);
+        document.getElementById("weapon").addEventListener("change", calculateFromEquipment);
+        document.getElementById("body").addEventListener("change", calculateFromEquipment);
+        document.getElementById("legs").addEventListener("change", calculateFromEquipment);
+    </script>
+</body>
+</html>
