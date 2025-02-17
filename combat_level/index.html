@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Combat Level Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        input, button { margin: 5px; font-size: 16px; }
+        label { font-weight: bold; color: gold; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 400px; margin: 20px auto; }
+        .gold-text { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>2004Scape Combat Level Calculator</h1>
+    <div class="container">
+        <label>Attack:</label>
+        <input type="number" id="attack" min="1" max="99" value="1"><br>
+        <label>Strength:</label>
+        <input type="number" id="strength" min="1" max="99" value="1"><br>
+        <label>Defence:</label>
+        <input type="number" id="defence" min="1" max="99" value="1"><br>
+        <label>Hitpoints:</label>
+        <input type="number" id="hitpoints" min="10" max="99" value="10"><br>
+        <label>Ranged:</label>
+        <input type="number" id="ranged" min="1" max="99" value="1"><br>
+        <label>Magic:</label>
+        <input type="number" id="magic" min="1" max="99" value="1"><br>
+        <label>Prayer:</label>
+        <input type="number" id="prayer" min="1" max="99" value="1"><br>
+        <button onclick="calculateCombatLevel()">Calculate</button>
+        <h2>Combat Level: <span id="combatLevel" class="gold-text">3</span></h2>
+        <div id="levelUpInfo" class="gold-text"></div>
+    </div>
+
+    <script>
+        function calculateCombatLevel() {
+            let attack = parseInt(document.getElementById("attack").value);
+            let strength = parseInt(document.getElementById("strength").value);
+            let defence = parseInt(document.getElementById("defence").value);
+            let hitpoints = parseInt(document.getElementById("hitpoints").value);
+            let ranged = parseInt(document.getElementById("ranged").value);
+            let magic = parseInt(document.getElementById("magic").value);
+            let prayer = parseInt(document.getElementById("prayer").value);
+            
+            function computeCombat(att, str, def, hp, rng, mag, pray) {
+                let base = (def + hp + Math.floor(pray / 2)) * 0.25;
+                let melee = (att + str) * 0.325;
+                let range = Math.floor(rng * 1.5) * 0.325;
+                let mage = Math.floor(mag * 1.5) * 0.325;
+                return Math.floor(base + Math.max(melee, range, mage));
+            }
+            
+            let currentCombat = computeCombat(attack, strength, defence, hitpoints, ranged, magic, prayer);
+            document.getElementById("combatLevel").textContent = currentCombat;
+            
+            let levelUpInfo = "";
+            
+            function levelsToNextCombat(skill, increment) {
+                let newCombat = computeCombat(
+                    attack + (skill === 'attack' ? increment : 0),
+                    strength + (skill === 'strength' ? increment : 0),
+                    defence + (skill === 'defence' ? increment : 0),
+                    hitpoints + (skill === 'hitpoints' ? increment : 0),
+                    ranged + (skill === 'ranged' ? increment : 0),
+                    magic + (skill === 'magic' ? increment : 0),
+                    prayer + (skill === 'prayer' ? increment : 0)
+                );
+                return newCombat > currentCombat ? increment : levelsToNextCombat(skill, increment + 1);
+            }
+            
+            levelUpInfo += `Attack: ${levelsToNextCombat('attack', 1)} more levels<br>`;
+            levelUpInfo += `Strength: ${levelsToNextCombat('strength', 1)} more levels<br>`;
+            levelUpInfo += `Defence: ${levelsToNextCombat('defence', 1)} more levels<br>`;
+            levelUpInfo += `Hitpoints: ${levelsToNextCombat('hitpoints', 1)} more levels<br>`;
+            levelUpInfo += `Prayer: ${levelsToNextCombat('prayer', 1)} more levels<br>`;
+            levelUpInfo += `Ranged: ${levelsToNextCombat('ranged', 1)} more levels<br>`;
+            levelUpInfo += `Magic: ${levelsToNextCombat('magic', 1)} more levels<br>`;
+            
+            document.getElementById("levelUpInfo").innerHTML = levelUpInfo;
+        }
+    </script>
+</body>
+</html>

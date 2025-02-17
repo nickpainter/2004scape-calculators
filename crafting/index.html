@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Crafting Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        img { vertical-align: middle; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
+        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+    </style>
+</head>
+<body onload="calculateCrafting()">
+    <h1>2004Scape Crafting Calculator</h1>
+    <div class="container">
+        <label>Current XP:</label>
+        <input type="number" id="currentXP" min="0" max="200000000" value="0">
+        
+        <label>Desired Level:</label>
+        <input type="number" id="targetLevel" min="2" max="99" value="99">
+        
+        <button onclick="calculateCrafting()">Calculate</button>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <div>
+            <button onclick="setMode('needle_thread')">Needle & Thread</button>
+            <button onclick="setMode('jewellery')">Jewellery</button>
+            <button onclick="setMode('pottery')">Pottery</button>
+            <button onclick="setMode('spinning')">Spinning</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Exp per Item</th>
+                    <th>Total Needed</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable"></tbody>
+        </table>
+    </div>
+    <script>
+        const craftingXP = {
+            "needle_thread": {
+                "Leather Gloves": 13.8, "Leather Boots": 16.3, "Leather Cowl": 18.5,
+                "Leather Vambraces": 22, "Leather Body": 25, "Leather Chaps": 27,
+                "Hard Leather Body": 35, "Coif": 37, "Studded Body": 40, "Studded Chaps": 42,
+                "Green D'hide Vambraces": 62, "Green D'hide Chaps": 124, "Green D'hide Body": 186,
+                "Blue D'hide Vambraces": 70, "Blue D'hide Chaps": 140, "Blue D'hide Body": 210,
+                "Red D'hide Vambraces": 78, "Red D'hide Chaps": 156, "Red D'hide Body": 234,
+                "Black D'hide Vambraces": 86, "Black D'hide Chaps": 172, "Black D'hide Body": 258
+            },
+            "jewellery": {
+                "Opal": 15, "Jade": 20, "Red Topaz": 25, "Sapphire": 50,
+                "Emerald": 67.5, "Ruby": 85, "Diamond": 107.5, "Dragonstone": 137.5,
+                "Gold Ring": 15, "Sapphire Ring": 40, "Emerald Ring": 55,
+                "Ruby Ring": 70, "Diamond Ring": 85, "Dragonstone Ring": 100,
+                "Gold Necklace": 20, "Sapphire Necklace": 55, "Emerald Necklace": 60, 
+                "Ruby Necklace": 75, "Diamond Necklace": 90, "Dragonstone Necklace": 105, 
+                "Gold Amulet": 34, "Sapphire Amulet": 69, "Emerald Amulet": 74, 
+                "Ruby Amulet": 89, "Diamond Amulet": 104, "Dragonstone Amulet": 154
+            },
+            "pottery": {
+                "Pot": 12.6, "Empty Cup": 17, "Pie Dish": 25, "Bowl": 33
+            },
+            "spinning": {
+                "Ball of Wool": 2.5, "Bowstring": 15
+            }
+        };
+        
+        let mode = 'needle_thread';
+        
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            calculateCrafting();
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Adds commas for thousands
+        }
+
+        function getXPForLevel(level) {
+            let total = 0;
+            for (let i = 1; i < level; i++) {
+                total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+            }
+            return Math.floor(total / 4);
+        }
+
+        function calculateCrafting() {
+            const currentXP = parseInt(document.getElementById("currentXP").value);
+            const targetLevel = parseInt(document.getElementById("targetLevel").value);
+            const targetXP = getXPForLevel(targetLevel);
+            
+            if (targetXP <= currentXP) {
+                alert("Target level must be higher than current XP.");
+                return;
+            }
+            
+            const xpNeeded = targetXP - currentXP;
+            const tableBody = document.getElementById("resultsTable");
+            tableBody.innerHTML = "";
+            
+            for (let item in craftingXP[mode]) {
+                let itemsNeeded = Math.ceil(xpNeeded / craftingXP[mode][item]);
+
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><img src="${item.toLowerCase().replace(/\s+/g, "_")}.png" alt="${item}"> ${item}</td>
+                    <td>${craftingXP[mode][item]}</td>
+                    <td>${formatNumber(itemsNeeded)}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
