@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2004Scape Combat Level Calculator</title>
     <style>
+        a { color: white; text-decoration: none; display: block; }
         body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
         input, button { margin: 5px; font-size: 16px; }
         label { font-weight: bold; color: gold; }
@@ -17,6 +18,7 @@
 </head>
 <body>
     <h1>2004Scape Combat Level Calculator</h1>
+    <a href="../index.html">[Home]</a>
     <div class="container">
         <label>Attack:</label>
         <input type="number" id="attack" min="1" max="99" value="1"><br>
@@ -83,6 +85,10 @@
             
             document.getElementById("levelUpInfo").innerHTML = levelUpInfo;
         }
+
+        ["attack", "strength", "defence", "hitpoints", "prayer", "ranged", "magic"].forEach(id => {
+            document.getElementById(id).addEventListener("change", calculateCombatLevel);
+        });
     </script>
 </body>
 </html>
