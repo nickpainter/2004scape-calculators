@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Max Hit Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        input, button, select { margin: 5px; font-size: 16px; }
+        p { color: gold; font-weight: bold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .gold-text { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body onload="calculateMaxHit()">
+    <h1>2004Scape Max Hit Calculator</h1>
+    <div class="container">
+        <label>Strength Level:</label>
+        <input type="number" id="strengthLevel" min="1" max="99" value="1">
+
+        <label>Strength Bonus:</label>
+        <input type="number" id="strengthBonus" min="0" max="99" value="0">
+        
+        <button onclick="calculateMaxHit()">Calculate</button>
+
+        <label>Fighting Style:</label>
+        <select id="fightingStyle">
+            <option value="0">Accurate / Defensive (+0)</option>
+            <option value="1">Controlled (+1)</option>
+            <option value="3">Aggressive (+3)</option>
+        </select><br>
+
+        <label>Potion:</label>
+        <select id="potion">
+            <option value="0,0">None</option>
+            <option value="3,0.10">Strength (3 + 10%)</option>
+            <option value="5,0.15">Super Strength (5 + 15%)</option>
+        </select><br>
+
+        <label>Prayer:</label>
+        <select id="prayerBonus">
+            <option value="1">None</option>
+            <option value="1.05">Burst of Strength (5%)</option>
+            <option value="1.1">Superhuman Strength (10%)</option>
+            <option value="1.15">Ultimate Strength (15%)</option>
+        </select><br>
+        
+        <p>Equipment</p>
+        <label>Weapon:</label>
+        <select id="weaponBonus">
+            <option value="0">None</option>
+
+            <!-- Bronze -->
+            <option value="3">Bronze Dagger (+3)</option>
+            <option value="5">Bronze Mace (+5)</option>
+            <option value="5">Bronze Sword (+5)</option>
+            <option value="6">Bronze Scimitar (+6)</option>
+            <option value="7">Bronze Longsword (+7)</option>
+            <option value="8">Bronze Warhammer (+8)</option>
+            <option value="9">Bronze Battleaxe (+9)</option>
+            <option value="10">Bronze 2h Sword (+10)</option>
+
+            <!-- Iron -->
+            <option value="4">Iron Dagger (+4)</option>
+            <option value="7">Iron Mace (+7)</option>
+            <option value="7">Iron Sword (+7)</option>
+            <option value="9">Iron Scimitar (+9)</option>
+            <option value="10">Iron Longsword (+10)</option>
+            <option value="11">Iron Warhammer (+11)</option>
+            <option value="13">Iron Battleaxe (+13)</option>
+            <option value="14">Iron 2h Sword (+14)</option>
+
+            <!-- Steel -->
+            <option value="7">Steel Dagger (+7)</option>
+            <option value="11">Steel Mace (+11)</option>
+            <option value="12">Steel Sword (+12)</option>
+            <option value="14">Steel Scimitar (+14)</option>
+            <option value="16">Steel Longsword (+16)</option>
+            <option value="16">Steel Warhammer (+16)</option>
+            <option value="20">Steel Battleaxe (+20)</option>
+            <option value="22">Steel 2h Sword (+22)</option>
+
+            <!-- Black -->
+            <option value="7">Black Dagger (+7)</option>
+            <option value="12">Black Sword (+12)</option>
+            <option value="13">Black Mace (+13)</option>
+            <option value="14">Black Scimitar (+14)</option>
+            <option value="16">Black Longsword (+16)</option>
+            <option value="22">Black Warhammer (+22)</option>
+            <option value="24">Black Battleaxe (+24)</option>
+            <option value="26">Black 2h Sword (+26)</option>
+
+            <!-- Mithril -->
+            <option value="10">Mithril Dagger (+10)</option>
+            <option value="16">Mithril Mace (+16)</option>
+            <option value="17">Mithril Sword (+17)</option>
+            <option value="20">Mithril Scimitar (+20)</option>
+            <option value="22">Mithril Longsword (+22)</option>
+            <option value="27">Mithril Warhammer (+27)</option>
+            <option value="29">Mithril Battleaxe (+29)</option>
+            <option value="31">Mithril 2h Sword (+31)</option>
+
+            <!-- Adamant -->
+            <option value="14">Adamant Dagger (+14)</option>
+            <option value="23">Adamant Mace (+23)</option>
+            <option value="24">Adamant Sword (+24)</option>
+            <option value="28">Adamant Scimitar (+28)</option>
+            <option value="31">Adamant Longsword (+31)</option>
+            <option value="39">Adamant Warhammer (+39)</option>
+            <option value="41">Adamant Battleaxe (+41)</option>
+            <option value="44">Adamant 2h Sword (+44)</option>
+
+            <!-- Rune -->
+            <option value="24">Rune Dagger (+24)</option>
+            <option value="36">Rune Mace (+36)</option>
+            <option value="39">Rune Sword (+39)</option>
+            <option value="44">Rune Scimitar (+44)</option>
+            <option value="49">Rune Longsword (+49)</option>
+            <option value="62">Rune Warhammer (+62)</option>
+            <option value="64">Rune Battleaxe (+64)</option>
+            <option value="70">Rune 2h Sword (+70)</option>
+
+            <!-- Dragon -->
+            <option value="40">Dragon Dagger (+40)</option>
+            <option value="55">Dragon Mace (+55)</option>
+            <option value="93">Dragon Spear (+60)</option>
+            <option value="71">Dragon Longsword (+71)</option>
+            <option value="85">Dragon Battleaxe (+85)</option>
+        </select><br>
+
+        <label>Amulet:</label>
+        <select id="amuletBonus">
+            <option value="0">None</option>
+            <option value="6">Amulet of Power (+6)</option>
+            <option value="6">Amulet of Glory (+6)</option>
+            <option value="10">Amulet of Strength (+10)</option>
+        </select><br>
+        
+        <label>Gloves:</label>
+        <select id="glovesBonus">
+            <option value="0">None</option>
+            <option value="2">Cooking Gauntlets (+2)</option>
+            <option value="2">Goldsmith Gauntlets (+2)</option>
+            <option value="2">Klank's Gauntlets (+2)</option>
+            <option value="2">Steel Gauntlets (+2)</option>
+        </select><br>
+       
+        <h2>Your Max Hit: <span id="maxHit" class="gold-text"></span></h2>
+    </div>
+    
+    <script>
+        function calculateMaxHit() {
+            const strengthLevel = parseInt(document.getElementById("strengthLevel").value);
+            const fightingStyleBonus = parseInt(document.getElementById("fightingStyle").value);
+            const prayerBonus = parseFloat(document.getElementById("prayerBonus").value);
+            const weaponBonus = parseInt(document.getElementById("weaponBonus").value);
+            const amuletBonus = parseInt(document.getElementById("amuletBonus").value);
+            const glovesBonus = parseInt(document.getElementById("glovesBonus").value);
+
+            const potionValues = document.getElementById("potion").value.split(',');
+            const potionFlatBonus = parseInt(potionValues[0]);
+            const potionPercentageBonus = parseFloat(potionValues[1]);
+
+            // 1. Apply potion boost
+            let boostedStrength = strengthLevel + potionFlatBonus;
+            boostedStrength = Math.floor(boostedStrength * (1 + potionPercentageBonus));
+
+            // 2. Apply prayer bonus
+            let effectiveStrength = Math.floor(boostedStrength * prayerBonus);
+
+            // 3. Add fighting style bonus and +8 base strength
+            effectiveStrength = Math.floor(effectiveStrength + fightingStyleBonus + 8);
+
+            // 4. Compute total strength bonus from gear
+            const totalStrengthBonus = weaponBonus + amuletBonus + glovesBonus;
+
+            // 5. Compute max hit using the correct formula
+            let maxHit = Math.floor(((effectiveStrength * (totalStrengthBonus + 64)) + 320) / 640);
+
+            // 6. Ensure minimum hit of 1 (RuneScape logic)
+            maxHit = Math.max(1, maxHit);
+
+            // 7. Display result
+            document.getElementById("maxHit").textContent = maxHit;
+
+        }
+
+        function calculateFromEquipment() {
+            const weaponBonus = parseInt(document.getElementById("weaponBonus").value);
+            const amuletBonus = parseInt(document.getElementById("amuletBonus").value);
+            const glovesBonus = parseInt(document.getElementById("glovesBonus").value);
+
+            const totalStrengthBonus = weaponBonus + amuletBonus + glovesBonus;
+            document.getElementById("strengthBonus").value = totalStrengthBonus;
+            calculateMaxHit();
+        }
+
+        ["fightingStyle", "potion", "prayerBonus"].forEach(id => {
+            document.getElementById(id).addEventListener("change", calculateMaxHit);
+        });
+
+        ["weaponBonus", "amuletBonus", "glovesBonus"].forEach(id => {
+            document.getElementById(id).addEventListener("change", calculateFromEquipment);
+        });
+    </script>
+</body>
+</html>

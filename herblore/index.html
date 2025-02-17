@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Herblore Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        img { vertical-align: middle; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
+        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+    </style>
+</head>
+<body onload="calculateHerblore()">
+    <h1>2004Scape Herblore Calculator</h1>
+    <div class="container">
+        <label>Current XP:</label>
+        <input type="number" id="currentXP" min="0" max="200000000" value="0">
+        
+        <label>Desired Level:</label>
+        <input type="number" id="targetLevel" min="2" max="99" value="99">
+        
+        <button onclick="calculateHerblore()">Calculate</button>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <div>
+            <button onclick="setMode('complete_potions')">Complete Potions</button>
+            <button onclick="setMode('cleaning_herbs')">Cleaning Herbs</button>
+            <button onclick="setMode('unfinished_potions')">Unfinished Potions</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>XP Gained</th>
+                    <th>Total Needed</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable"></tbody>
+        </table>
+    </div>
+    <script>
+        const herbloreXP = {
+            "unfinished_potions": {
+                "Attack Potion": 25, "Antipoison": 37.5, "Strength Potion": 50,
+                "Restore Potion": 62.5, "Defence Potion": 75, "Prayer Potion": 87.5,
+                "Super Attack": 100, "Superantipoison": 106.3, "Fishing Potion": 112.5,
+                "Super Strength": 125, "Weapon poison": 137.5, "Super Defence": 150, 
+                "Antifire Potion": 157.5
+            },
+            "cleaning_herbs": {
+                "Guam Leaf": 2.5, "Marrentill": 3.8, "Tarromin": 5, "Harralander": 6.3,
+                "Ranarr Weed": 7.5, "Irit Leaf": 8.8, "Avantoe": 10, "Kwuarm": 11.3,
+                "Cadantine": 12.5, "Lantadyme": 13.1, "Dwarf Weed": 13.8, "Torstol": 15
+            },
+            "complete_potions": {}
+        };
+        
+        const potionHerbMap = {
+            "Attack Potion": "Guam Leaf", "Antipoison": "Marrentill", "Strength Potion": "Tarromin",
+            "Restore Potion": "Harralander", "Defence Potion": "Ranarr Weed", "Prayer Potion": "Ranarr",
+            "Super Attack": "Irit", "Superantipoison": "Irit Leaf", "Fishing Potion": "Avantoe",
+            "Super Strength": "Kwuarm", "Weapon poison": "Kwuarm", "Super Defence": "Cadantine", 
+            "Antifire Potion": "Lantadyme"
+        };
+        
+        for (let potion in herbloreXP["unfinished_potions"]) {
+            let herb = potionHerbMap[potion];
+            let herbXP = herbloreXP["cleaning_herbs"][herb] || 0;
+            herbloreXP["complete_potions"][potion] = herbloreXP["unfinished_potions"][potion] + herbXP;
+        }
+        
+        let mode = 'complete_potions';
+        
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            calculateHerblore();
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function getXPForLevel(level) {
+            let total = 0;
+            for (let i = 1; i < level; i++) {
+                total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+            }
+            return Math.floor(total / 4);
+        }
+
+        function calculateHerblore() {
+            const currentXP = parseInt(document.getElementById("currentXP").value);
+            const targetLevel = parseInt(document.getElementById("targetLevel").value);
+            const targetXP = getXPForLevel(targetLevel);
+            
+            if (targetXP <= currentXP) {
+                alert("Target level must be higher than current XP.");
+                return;
+            }
+            
+            const xpNeeded = targetXP - currentXP;
+            const tableBody = document.getElementById("resultsTable");
+            tableBody.innerHTML = "";
+            
+            for (let item in herbloreXP[mode]) {
+                let itemsNeeded = Math.ceil(xpNeeded / herbloreXP[mode][item]);
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><img src="${item.toLowerCase().replace(/\s+/g, "_")}.png" alt="${item}"> ${item}</td>
+                    <td>${herbloreXP[mode][item]}</td>
+                    <td>${formatNumber(itemsNeeded)}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>

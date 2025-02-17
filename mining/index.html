@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Mining Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        img { vertical-align: middle; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
+        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+    </style>
+</head>
+<body onload="calculateOres()">
+
+    <h1>2004Scape Mining Calculator</h1>
+    <div class="container">
+        <label>Current XP:</label>
+        <input type="number" id="currentXP" min="0" max="200000000" value="0">
+        
+        <label>Desired Level:</label>
+        <input type="number" id="targetLevel" min="2" max="99" value="60">
+        
+        <button onclick="calculateOres()">Calculate</button>
+        
+        <br>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <!-- Results Table -->
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Ore Type</th>
+                    <th>XP per Ore</th>
+                    <th>Ores Needed</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Convert level to XP
+        function getXPForLevel(level) {
+            let total = 0;
+            for (let i = 1; i < level; i++) {
+              total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+            }
+            return Math.floor(total / 4);
+        }
+        
+        // Adds commas for thousands
+        function formatNumber(num) {
+            return num.toLocaleString(); 
+        }
+
+        // Calculate how many ores needed
+        function calculateOres() {
+            const currentXP = parseInt(document.getElementById("currentXP").value);
+            const targetLevel = parseInt(document.getElementById("targetLevel").value);
+            const targetXP = getXPForLevel(targetLevel);
+
+            if (targetXP <= currentXP) {
+                alert("Target level must be higher than current XP.");
+                return;
+            }
+
+            const xpNeeded = targetXP - currentXP;
+            const ores = {
+                "Clay": 5,
+                "Rune Essence": 5,
+                "Copper Ore": 17.5,
+                "Tin Ore": 17.5,
+                "Blurite Ore": 17.5,
+                "Iron Ore": 35,
+                "Silver Ore": 40,
+                "Coal": 50,
+                "Gold Ore": 65,
+                "Gem Rock": 65,
+                "Mithril Ore": 80,
+                "Adamantite Ore": 95,
+                "Runite Ore": 125
+            };
+
+            // Update progress bar
+            const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            const tableBody = document.querySelector("#resultsTable tbody");
+
+            // Clear previous results
+            tableBody.innerHTML = ""; 
+
+            // Generate table
+            for (let ore in ores) {
+                let oreCount = Math.ceil(xpNeeded / ores[ore]); 
+
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><img src="${ore.toLowerCase().replace(/\s+/g, "_")}.png" alt="${ore}"> ${ore}</td>
+                    <td>${ores[ore]}</td>
+                    <td>${formatNumber(oreCount)}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+
+</body>
+</html>

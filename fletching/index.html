@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Fletching Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        img { vertical-align: middle; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
+        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+    </style>
+</head>
+<body onload="calculateFletching()">
+    <h1>2004Scape Fletching Calculator</h1>
+    <div class="container">
+        <label>Current XP:</label>
+        <input type="number" id="currentXP" min="0" max="200000000" value="0">
+        
+        <label>Desired Level:</label>
+        <input type="number" id="targetLevel" min="2" max="99" value="99">
+        
+        <button onclick="calculateFletching()">Calculate</button>
+
+        <br>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <button onclick="setMode('unstrung_stringing')">Unstrung/Stringing</button>
+        <button onclick="setMode('complete')">Fletching & Stringing</button>
+        <button onclick="setMode('arrows')">Complete Arrows</button>
+
+        <!-- Results Table -->
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>XP per Action</th>
+                    <th>Amount Needed</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        let mode = 'unstrung_stringing';
+        
+        // Convert level to XP
+        function getXPForLevel(level) {
+            let total = 0;
+            for (let i = 1; i < level; i++) {
+              total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+            }
+            return Math.floor(total / 4);
+        }
+        
+        // Adds commas for thousands
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+        
+        function setMode(newMode) {
+            mode = newMode;
+            calculateFletching();
+        }
+        
+        function calculateFletching() {
+            const currentXP = parseInt(document.getElementById("currentXP").value);
+            const targetLevel = parseInt(document.getElementById("targetLevel").value);
+            const targetXP = getXPForLevel(targetLevel);
+
+            if (targetXP <= currentXP) {
+                alert("Target level must be higher than current XP.");
+                return;
+            }
+            
+            const xpNeeded = targetXP - currentXP;
+            const items = {
+                "Shortbow": [5, 10],
+                "Longbow": [10, 20],
+                "Oak Shortbow": [16.5, 33],
+                "Oak Longbow": [25, 50],
+                "Willow Shortbow": [33.3, 66.5],
+                "Willow Longbow": [41.5, 83],
+                "Maple Shortbow": [50, 100],
+                "Maple Longbow": [58.3, 116.5],
+                "Yew Shortbow": [67.5, 134],
+                "Yew Longbow": [75, 150],
+                "Magic Shortbow": [83.3, 166.5],
+                "Magic Longbow": [91.5, 182]
+            };
+            
+            const arrows = {
+                "Bronze Arrows": 39.5,
+                "Iron Arrows": 57.5,
+                "Steel Arrows": 95,
+                "Mithril Arrows": 132.5,
+                "Adamant Arrows": 170,
+                "Rune Arrows": 207.5
+            };
+            
+            // Update progress bar
+            const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            const tableBody = document.querySelector("#resultsTable tbody");
+
+            // Clear previous results
+            tableBody.innerHTML = "";
+            
+            // Generate table based on option selected
+            if (mode === 'arrows') {
+                for (let arrow in arrows) {
+                    let xpPerAction = arrows[arrow];
+                    let count = Math.ceil(xpNeeded / xpPerAction);
+                    
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><img src="${arrow.toLowerCase().replace(/\s+/g, '_')}.png" alt="${arrow}"> ${arrow}</td>
+                        <td>${xpPerAction}</td>
+                        <td>${formatNumber(count)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            } else {
+                for (let item in items) {
+                    let xpPerAction = mode === 'unstrung_stringing' ? items[item][0] : items[item][1];
+                    let count = Math.ceil(xpNeeded / xpPerAction);
+                    let itemName = mode === 'complete' ? item : `${item} (u)`;
+                    
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><img src="${itemName.toLowerCase().replace(/\s+/g, '_')}.png" alt="${itemName}"> ${itemName}</td>
+                        <td>${xpPerAction}</td>
+                        <td>${formatNumber(count)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
