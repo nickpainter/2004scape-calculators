@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2004Scape Smithing Calculator</title>
+    <style>
+        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+        img { vertical-align: middle; }
+        input, button { margin: 5px; font-size: 16px; }
+        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
+        th { background-color: #222; color: gold; }
+        .container { max-width: 522px; margin: 20px auto; }
+        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
+        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+    </style>
+</head>
+<body onload="calculateSmithing()">
+    <h1>2004Scape Smithing Calculator</h1>
+    <div class="container">
+        <label>Current XP:</label>
+        <input type="number" id="currentXP" min="0" max="200000000" value="0">
+        
+        <label>Desired Level:</label>
+        <input type="number" id="targetLevel" min="2" max="99" value="99">
+        
+        <button onclick="calculateSmithing()">Calculate</button>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <div>
+            <button onclick="setMode('smelting_bars')">Smelting + Bars</button>
+            <button onclick="setMode('bars')">Bars Only</button>
+            <button onclick="setMode('smelting')">Smelting Only</button>
+        </div>
+        
+        <br>
+        <div id="metalSelection" onchange="calculateSmithing()">
+            <label for="metalType">Select Metal:</label>
+            <select id="metalType">
+                <option value="bronze">Bronze</option>
+                <option value="iron">Iron</option>
+                <option value="steel">Steel</option>
+                <option value="mithril">Mithril</option>
+                <option value="adamant">Adamant</option>
+                <option value="rune">Rune</option>
+            </select>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Bars Needed</th>
+                    <th>Total Bars</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable"></tbody>
+        </table>
+    </div>
+
+    <p>* This calculator is not complete, will be upgraded in the future</p>
+    <script>
+        const barXP = {
+            "bronze": 12.5, "iron": 25, "steel": 37.5,
+            "mithril": 50, "adamant": 62.5, "rune": 75
+        };
+
+        const smeltingXP = {
+            "bronze": 6.2, "iron": 12.5, "silver": 13.7, "steel": 17.5,
+            "gold":22.5, "mithril": 30, "adamant": 37.5, "rune": 50
+        };
+        
+        const barUsage = {
+            "Dagger": 1, "Axe": 1, "Mace": 1, "Med Helm": 2,
+            "Sword": 1, "Scimitar": 2, "Arrowtips": 1, "Longsword": 2,
+            "Full Helm": 2, "Knife": 1, "Sq Shield": 2,
+            "Warhammer": 3, "Battleaxe": 3, "Chainbody": 3, "Kiteshield": 3,
+            "2h Sword": 3, "Platelegs": 3, "Plateskirt": 3, "Platebody": 5
+        };
+
+        let mode = 'bars';
+
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            document.getElementById("metalSelection").style.display = (mode === 'smelting') ? 'none' : 'block';
+            calculateSmithing();
+        }
+
+        function getXPForLevel(level) {
+            let total = 0;
+            for (let i = 1; i < level; i++) {
+                total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+            }
+            return Math.floor(total / 4);
+        }
+
+        function calculateSmithing() {
+            const currentXP = parseInt(document.getElementById("currentXP").value);
+            const targetLevel = parseInt(document.getElementById("targetLevel").value);
+            const targetXP = getXPForLevel(targetLevel);
+            const selectedMetal = document.getElementById("metalType").value;
+            
+            if (targetXP <= currentXP) {
+                alert("Target level must be higher than current XP.");
+                return;
+            }
+            
+            let xpNeeded = targetXP - currentXP;
+            if (mode === 'smelting_bars') {
+                xpNeeded = Math.ceil(xpNeeded / (1 + smeltingXP[selectedMetal] / barXP[selectedMetal]));
+            } else if (mode === 'smelting') {
+                xpNeeded = Math.ceil(xpNeeded / smeltingXP[selectedMetal]);
+            }
+            
+            const barsNeeded = Math.ceil(xpNeeded / barXP[selectedMetal]);
+            
+            const progressBar = document.getElementById("progressBar");
+            const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            
+            const tableBody = document.getElementById("resultsTable");
+            tableBody.innerHTML = "";
+            
+            if (mode === 'smelting') {
+                for (let bar in barXP) {
+                    let barsNeeded = Math.ceil(xpNeeded / barXP[bar]);
+                    
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><img src="${bar}_bar.png" alt="${bar} Bar"> ${bar.charAt(0).toUpperCase() + bar.slice(1)} Bar</td>
+                        <td>${barXP[bar]}</td>
+                        <td>${barsNeeded}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            } else {
+                for (let item in barUsage) {
+                    let barsPerItem = barUsage[item];
+                    let count = Math.ceil(barsNeeded / barsPerItem);
+                    
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><img src="${selectedMetal}_${item.toLowerCase().replace(/ /g, '_')}.png" alt="${item}"> ${selectedMetal.charAt(0).toUpperCase() + selectedMetal.slice(1)} ${item}</td>
+                        <td>${barsPerItem}</td>
+                        <td>${count}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
