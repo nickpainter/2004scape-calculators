@@ -40,6 +40,7 @@
         <table id="resultsTable">
             <thead>
                 <tr>
+                    <th>Level</th>
                     <th>Course</th>
                     <th>XP per Lap</th>
                     <th>Laps Needed</th>
@@ -76,12 +77,12 @@
             }
 
             const xpNeeded = targetXP - currentXP;
-            const courses = {
-                "Gnome Stronghold": 86.5,
-                "Log balance (Coal Trucks)": 8.5,
-                "Barbarian Outpost": 152.5,
-                "Wilderness": 571.4
-            };
+            const courses = [
+                { name: "Gnome Stronghold", xp: 86.5, level: 1 },
+                { name: "Log balance (Coal Trucks)", xp: 8.5, level: 20 },
+                { name: "Barbarian Outpost", xp: 152.5, level: 35 },
+                { name: "Wilderness", xp: 571.4, level: 52 }
+            ];
 
             // Update progress bar
             const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
@@ -94,13 +95,14 @@
             tableBody.innerHTML = ""; 
 
             // Generate table
-            for (let course in courses) {
-                let lapCount = Math.ceil(xpNeeded / courses[course]); 
-
+            for (let course of courses) {
+                let lapCount = Math.ceil(xpNeeded / course.xp);
+                
                 let row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><img src="${course.toLowerCase().replace(/\s+/g, "_")}.png" alt="${course}"> ${course}</td>
-                    <td>${courses[course]}</td>
+                    <td>${course.level}</td>
+                    <td><img src="${course.name.toLowerCase().replace(/\s+/g, "_")}.png" alt="${course.name}"> ${course.name}</td>
+                    <td>${course.xp}</td>
                     <td>${formatNumber(lapCount)}</td>
                 `;
                 tableBody.appendChild(row);
