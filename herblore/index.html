@@ -39,66 +39,38 @@
             <button onclick="setMode('unfinished_potions')">Unfinished Potions</button>
         </div>
         
-        <table>
+        <table id="resultsTable">
             <thead>
                 <tr>
+                    <th>Level</th>
                     <th>Item</th>
                     <th>XP Gained</th>
                     <th>Total Needed</th>
                 </tr>
             </thead>
-            <tbody id="resultsTable"></tbody>
+            <tbody></tbody>
         </table>
     </div>
-    <script>
-        const herbloreXP = {
-            "unfinished_potions": {
-                "Attack Potion": 25, "Antipoison": 37.5, "Strength Potion": 50,
-                "Restore Potion": 62.5, "Defence Potion": 75, "Prayer Potion": 87.5,
-                "Super Attack": 100, "Superantipoison": 106.3, "Fishing Potion": 112.5,
-                "Super Strength": 125, "Weapon poison": 137.5, "Super Defence": 150, 
-                "Antifire Potion": 157.5
-            },
-            "cleaning_herbs": {
-                "Guam Leaf": 2.5, "Marrentill": 3.8, "Tarromin": 5, "Harralander": 6.3,
-                "Ranarr Weed": 7.5, "Irit Leaf": 8.8, "Avantoe": 10, "Kwuarm": 11.3,
-                "Cadantine": 12.5, "Lantadyme": 13.1, "Dwarf Weed": 13.8, "Torstol": 15
-            },
-            "complete_potions": {}
-        };
-        
-        const potionHerbMap = {
-            "Attack Potion": "Guam Leaf", "Antipoison": "Marrentill", "Strength Potion": "Tarromin",
-            "Restore Potion": "Harralander", "Defence Potion": "Ranarr Weed", "Prayer Potion": "Ranarr",
-            "Super Attack": "Irit", "Superantipoison": "Irit Leaf", "Fishing Potion": "Avantoe",
-            "Super Strength": "Kwuarm", "Weapon poison": "Kwuarm", "Super Defence": "Cadantine", 
-            "Antifire Potion": "Lantadyme"
-        };
-        
-        for (let potion in herbloreXP["unfinished_potions"]) {
-            let herb = potionHerbMap[potion];
-            let herbXP = herbloreXP["cleaning_herbs"][herb] || 0;
-            herbloreXP["complete_potions"][potion] = herbloreXP["unfinished_potions"][potion] + herbXP;
-        }
-        
+    <script>   
         let mode = 'complete_potions';
-        
-        function setMode(selectedMode) {
-            mode = selectedMode;
-            calculateHerblore();
-        }
-        
-        // Adds commas for thousands
-        function formatNumber(num) {
-            return num.toLocaleString(); 
-        }
 
+        // Convert level to XP
         function getXPForLevel(level) {
             let total = 0;
             for (let i = 1; i < level; i++) {
                 total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
             }
             return Math.floor(total / 4);
+        }
+
+        // Adds commas for thousands
+        function formatNumber(num) {
+            return num.toLocaleString(); 
+        }
+
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            calculateHerblore();
         }
 
         function calculateHerblore() {
@@ -112,15 +84,47 @@
             }
             
             const xpNeeded = targetXP - currentXP;
-            const tableBody = document.getElementById("resultsTable");
+            const herbloreData = {
+                "complete_potions": {
+                    "Attack Potion": [3, 27.5], "Antipoison": [5, 41.3], "Strength Potion": [12, 55],
+                    "Restore Potion": [22, 68.8], "Defence Potion": [30, 82.5], "Prayer Potion": [38, 95],
+                    "Super Attack": [45, 108.8], "Superantipoison": [48, 115.1], "Fishing Potion": [50, 122.5],
+                    "Super Strength": [55, 136.3], "Weapon Poison": [60, 148.8], "Super Defence": [66, 162.5], 
+                    "Antifire Potion": [69, 170.6], "Ranging Potion": [72, 176.3], "Zamorak Brew": [78, 190]
+                },
+                "cleaning_herbs": {
+                    "Guam Leaf": [3, 2.5], "Marrentill": [5, 3.8], "Tarromin": [11, 5], "Harralander": [20, 6.3],
+                    "Ranarr Weed": [25, 7.5], "Irit Leaf": [40, 8.8], "Avantoe": [48, 10], "Kwuarm": [54, 11.3],
+                    "Cadantine": [65, 12.5], "Lantadyme": [67, 13.1], "Dwarf Weed": [70, 13.8], "Torstol": [75, 15]
+                },
+                "unfinished_potions": {
+                    "Attack Potion": [3, 25], "Antipoison": [5, 37.5], "Strength Potion": [12, 50],
+                    "Restore Potion": [22, 62.5], "Defence Potion": [30, 75], "Prayer Potion": [38, 87.5],
+                    "Super Attack": [45, 100], "Superantipoison": [48, 106.3], "Fishing Potion": [50, 112.5],
+                    "Super Strength": [55, 125], "Weapon Poison": [60, 137.5], "Super Defence": [66, 150], 
+                    "Antifire Potion": [69, 157.5], "Ranging Potion": [72, 162.5], "Zamorak Brew": [78, 175]
+                }
+            };
+
+            // Update progress bar
+            const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            const tableBody = document.querySelector("#resultsTable tbody");
+
+            // Clear previous results
             tableBody.innerHTML = "";
             
-            for (let item in herbloreXP[mode]) {
-                let itemsNeeded = Math.ceil(xpNeeded / herbloreXP[mode][item]);
+            // Generate table based on option selected
+            for (let item in herbloreData[mode]) {
+                let [level, xpGained] = herbloreData[mode][item];
+                let itemsNeeded = Math.ceil(xpNeeded / xpGained);
                 let row = document.createElement("tr");
                 row.innerHTML = `
+                    <td>${level}</td>
                     <td><img src="${item.toLowerCase().replace(/\s+/g, "_")}.png" alt="${item}"> ${item}</td>
-                    <td>${herbloreXP[mode][item]}</td>
+                    <td>${xpGained}</td>
                     <td>${formatNumber(itemsNeeded)}</td>
                 `;
                 tableBody.appendChild(row);

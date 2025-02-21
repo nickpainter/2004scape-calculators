@@ -44,6 +44,7 @@
         <table id="resultsTable">
             <thead>
                 <tr>
+                    <th>Level</th>
                     <th>Item</th>
                     <th>XP per Action</th>
                     <th>Amount Needed</th>
@@ -86,27 +87,27 @@
             
             const xpNeeded = targetXP - currentXP;
             const items = {
-                "Shortbow": [5, 10],
-                "Longbow": [10, 20],
-                "Oak Shortbow": [16.5, 33],
-                "Oak Longbow": [25, 50],
-                "Willow Shortbow": [33.3, 66.5],
-                "Willow Longbow": [41.5, 83],
-                "Maple Shortbow": [50, 100],
-                "Maple Longbow": [58.3, 116.5],
-                "Yew Shortbow": [67.5, 134],
-                "Yew Longbow": [75, 150],
-                "Magic Shortbow": [83.3, 166.5],
-                "Magic Longbow": [91.5, 182]
+                "Shortbow": [5, 10, 1],
+                "Longbow": [10, 20, 5],
+                "Oak Shortbow": [16.5, 33, 20],
+                "Oak Longbow": [25, 50, 25],
+                "Willow Shortbow": [33.3, 66.5, 35],
+                "Willow Longbow": [41.5, 83, 40],
+                "Maple Shortbow": [50, 100, 50],
+                "Maple Longbow": [58.3, 116.5, 55],
+                "Yew Shortbow": [67.5, 134, 65],
+                "Yew Longbow": [75, 150, 70],
+                "Magic Shortbow": [83.3, 166.5, 80],
+                "Magic Longbow": [91.5, 182, 85]
             };
             
             const arrows = {
-                "Bronze Arrows": 39.5,
-                "Iron Arrows": 57.5,
-                "Steel Arrows": 95,
-                "Mithril Arrows": 132.5,
-                "Adamant Arrows": 170,
-                "Rune Arrows": 207.5
+                "Bronze Arrows": [39.5, 1],
+                "Iron Arrows": [57.5, 15],
+                "Steel Arrows": [95, 30],
+                "Mithril Arrows": [132.5, 45],
+                "Adamant Arrows": [170, 60],
+                "Rune Arrows": [207.5, 75]
             };
             
             // Update progress bar
@@ -122,11 +123,12 @@
             // Generate table based on option selected
             if (mode === 'arrows') {
                 for (let arrow in arrows) {
-                    let xpPerAction = arrows[arrow];
+                    let [xpPerAction, levelReq] = arrows[arrow];
                     let count = Math.ceil(xpNeeded / xpPerAction);
                     
                     let row = document.createElement("tr");
                     row.innerHTML = `
+                        <td>${levelReq}</td>
                         <td><img src="${arrow.toLowerCase().replace(/\s+/g, '_')}.png" alt="${arrow}"> ${arrow}</td>
                         <td>${xpPerAction}</td>
                         <td>${formatNumber(count)}</td>
@@ -135,14 +137,15 @@
                 }
             } else {
                 for (let item in items) {
-                    let xpPerAction = mode === 'unstrung_stringing' ? items[item][0] : items[item][1];
-                    let count = Math.ceil(xpNeeded / xpPerAction);
+                    let [xpPerAction, xpFull, levelReq] = items[item];
+                    let count = Math.ceil(xpNeeded / (mode === 'unstrung_stringing' ? xpPerAction : xpFull));
                     let itemName = mode === 'complete' ? item : `${item} (u)`;
                     
                     let row = document.createElement("tr");
                     row.innerHTML = `
+                        <td>${levelReq}</td>
                         <td><img src="${itemName.toLowerCase().replace(/\s+/g, '_')}.png" alt="${itemName}"> ${itemName}</td>
-                        <td>${xpPerAction}</td>
+                        <td>${mode === 'unstrung_stringing' ? xpPerAction : xpFull}</td>
                         <td>${formatNumber(count)}</td>
                     `;
                     tableBody.appendChild(row);

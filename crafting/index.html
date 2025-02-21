@@ -29,6 +29,7 @@
         
         <button onclick="calculateCrafting()">Calculate</button>
         
+        <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-bar" id="progressBar">0%</div>
         </div>
@@ -40,64 +41,39 @@
             <button onclick="setMode('spinning')">Spinning</button>
         </div>
         
-        <table>
+        <!-- Results Table -->
+        <table id="resultsTable">
             <thead>
                 <tr>
+                    <th>Level</th>
                     <th>Item</th>
                     <th>Exp per Item</th>
                     <th>Total Needed</th>
                 </tr>
             </thead>
-            <tbody id="resultsTable"></tbody>
+            <tbody></tbody>
         </table>
     </div>
     <script>
-        const craftingXP = {
-            "needle_thread": {
-                "Leather Gloves": 13.8, "Leather Boots": 16.3, "Leather Cowl": 18.5,
-                "Leather Vambraces": 22, "Leather Body": 25, "Leather Chaps": 27,
-                "Hard Leather Body": 35, "Coif": 37, "Studded Body": 40, "Studded Chaps": 42,
-                "Green D'hide Vambraces": 62, "Green D'hide Chaps": 124, "Green D'hide Body": 186,
-                "Blue D'hide Vambraces": 70, "Blue D'hide Chaps": 140, "Blue D'hide Body": 210,
-                "Red D'hide Vambraces": 78, "Red D'hide Chaps": 156, "Red D'hide Body": 234,
-                "Black D'hide Vambraces": 86, "Black D'hide Chaps": 172, "Black D'hide Body": 258
-            },
-            "jewellery": {
-                "Opal": 15, "Jade": 20, "Red Topaz": 25, "Sapphire": 50,
-                "Emerald": 67.5, "Ruby": 85, "Diamond": 107.5, "Dragonstone": 137.5,
-                "Gold Ring": 15, "Sapphire Ring": 40, "Emerald Ring": 55,
-                "Ruby Ring": 70, "Diamond Ring": 85, "Dragonstone Ring": 100,
-                "Gold Necklace": 20, "Sapphire Necklace": 55, "Emerald Necklace": 60, 
-                "Ruby Necklace": 75, "Diamond Necklace": 90, "Dragonstone Necklace": 105, 
-                "Gold Amulet": 34, "Sapphire Amulet": 69, "Emerald Amulet": 74, 
-                "Ruby Amulet": 89, "Diamond Amulet": 104, "Dragonstone Amulet": 154
-            },
-            "pottery": {
-                "Pot": 12.6, "Empty Cup": 17, "Pie Dish": 25, "Bowl": 33
-            },
-            "spinning": {
-                "Ball of Wool": 2.5, "Bowstring": 15
-            }
-        };
-        
         let mode = 'needle_thread';
-        
-        function setMode(selectedMode) {
-            mode = selectedMode;
-            calculateCrafting();
-        }
-        
-        // Adds commas for thousands
-        function formatNumber(num) {
-            return num.toLocaleString(); 
-        }
 
+        // Convert level to XP
         function getXPForLevel(level) {
             let total = 0;
             for (let i = 1; i < level; i++) {
                 total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
             }
             return Math.floor(total / 4);
+        }
+                
+        // Adds commas for thousands
+        function formatNumber(num) {
+            return num.toLocaleString(); 
+        }
+
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            calculateCrafting();
         }
 
         function calculateCrafting() {
@@ -111,16 +87,91 @@
             }
             
             const xpNeeded = targetXP - currentXP;
-            const tableBody = document.getElementById("resultsTable");
+            const craftingXP = {
+                "needle_thread": {
+                    "Leather Gloves": { xp: 13.8, level: 1 },
+                    "Leather Boots": { xp: 16.3, level: 7 },
+                    "Leather Cowl": { xp: 18.5, level: 9 },
+                    "Leather Vambraces": { xp: 22, level: 11 },
+                    "Leather Body": { xp: 25, level: 14 },
+                    "Leather Chaps": { xp: 27, level: 18 },
+                    "Hard Leather Body": { xp: 35, level: 28 },
+                    "Coif": { xp: 37, level: 38 },
+                    "Studded Body": { xp: 40, level: 41 },
+                    "Studded Chaps": { xp: 42, level: 44 },
+                    "Green D'hide Vambraces": { xp: 62, level: 57 },
+                    "Green D'hide Chaps": { xp: 124, level: 60 },
+                    "Green D'hide Body": { xp: 186, level: 63 },
+                    "Blue D'hide Vambraces": { xp: 70, level: 66 },
+                    "Blue D'hide Chaps": { xp: 140, level: 68 },
+                    "Blue D'hide Body": { xp: 210, level: 71 },
+                    "Red D'hide Vambraces": { xp: 78, level: 73 },
+                    "Red D'hide Chaps": { xp: 156, level: 75 },
+                    "Red D'hide Body": { xp: 234, level: 77 },
+                    "Black D'hide Vambraces": { xp: 86, level: 79 },
+                    "Black D'hide Chaps": { xp: 172, level: 82 },
+                    "Black D'hide Body": { xp: 258, level: 84 }
+                },
+                "jewellery": {
+                    "Opal": { xp: 15, level: 1 },
+                    "Gold Ring": { xp: 15, level: 5 },
+                    "Gold Necklace": { xp: 20, level: 6 },
+                    "Gold Amulet": { xp: 34, level: 8 },
+                    "Jade": { xp: 20, level: 13 },
+                    "Red Topaz": { xp: 25, level: 16 },
+                    "Sapphire": { xp: 50, level: 20 },
+                    "Sapphire Ring": { xp: 40, level: 20 },
+                    "Sapphire Necklace": { xp: 55, level: 22 },
+                    "Sapphire Amulet": { xp: 69, level: 24 },
+                    "Emerald": { xp: 67.5, level: 27 },
+                    "Emerald Ring": { xp: 55, level: 27 },
+                    "Emerald Necklace": { xp: 60, level: 29 },
+                    "Emerald Amulet": { xp: 74, level: 31 },
+                    "Ruby": { xp: 85, level: 34 },
+                    "Ruby Ring": { xp: 70, level: 34 },
+                    "Ruby Necklace": { xp: 75, level: 40 },
+                    "Diamond": { xp: 107.5, level: 43 },
+                    "Diamond Ring": { xp: 85, level: 43 },
+                    "Ruby Amulet": { xp: 89, level: 50 },
+                    "Dragonstone": { xp: 137.5, level: 55 },
+                    "Dragonstone Ring": { xp: 100, level: 55 },
+                    "Diamond Necklace": { xp: 90, level: 56 },
+                    "Diamond Amulet": { xp: 104, level: 70 },
+                    "Dragonstone Necklace": { xp: 105, level: 72 },
+                    "Dragonstone Amulet": { xp: 154, level: 80 }
+                },
+                "pottery": {
+                    "Pot": { xp: 12.6, level: 1 },
+                    "Pie Dish": { xp: 25, level: 7 },
+                    "Bowl": { xp: 33, level: 8 }
+                },
+                "spinning": {
+                    "Ball of Wool": { xp: 2.5, level: 1 },
+                    "Bowstring": { xp: 15, level: 10 }
+                }
+            };
+
+            // Update progress bar
+            const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            const tableBody = document.querySelector("#resultsTable tbody");
+
+            // Clear previous results
             tableBody.innerHTML = "";
             
+            // Generate table based on option selected
             for (let item in craftingXP[mode]) {
-                let itemsNeeded = Math.ceil(xpNeeded / craftingXP[mode][item]);
-
+                let xpPerItem = craftingXP[mode][item].xp;
+                let levelRequired = craftingXP[mode][item].level;
+                let itemsNeeded = Math.ceil(xpNeeded / xpPerItem);
+                
                 let row = document.createElement("tr");
                 row.innerHTML = `
+                    <td>${levelRequired}</td>
                     <td><img src="${item.toLowerCase().replace(/\s+/g, "_")}.png" alt="${item}"> ${item}</td>
-                    <td>${craftingXP[mode][item]}</td>
+                    <td>${xpPerItem}</td>
                     <td>${formatNumber(itemsNeeded)}</td>
                 `;
                 tableBody.appendChild(row);

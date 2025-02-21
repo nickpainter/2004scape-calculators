@@ -40,6 +40,7 @@
         <table id="resultsTable">
             <thead>
                 <tr>
+                    <th>Level</th>
                     <th>Food</th>
                     <th>XP per Cook</th>
                     <th>Food Needed</th>
@@ -76,33 +77,43 @@
             }
 
             const xpNeeded = targetXP - currentXP;
-            const foods = {
-                "Shrimps": 30,
-                "Anchovies": 30,
-                "Cooked Meat": 30,
-                "Cooked Chicken": 30,
-                "Sardine": 40,
-                "Bread": 40,
-                "Herring": 50,
-                "Redberry Pie": 78,
-                "Trout": 70,
-                "Pike": 80,
-                "Salmon": 90,
-                "Meat Pie": 110,
-                "Tuna": 100,
-                "Stew": 117,
-                "Lobster": 120,
-                "Bass": 130,
-                "Apple Pie": 130,
-                "Swordfish": 140,
-                "Plain Pizza": 143,
-                "Meat Pizza": 169,
-                "Cake": 180,
-                "Anchovy Pizza": 182,
-                "Jug of Wine": 200,
-                "Chocolate Cake": 210,
-                "Shark": 210
-            };
+            const foods = [
+                { name: "Cooked Meat", xp: 30, level: 1 },
+                { name: "Cooked Chicken", xp: 30, level: 1 },
+                { name: "Shrimps", xp: 30, level: 1 },
+                { name: "Anchovies", xp: 30, level: 1 },
+                { name: "Bread", xp: 40, level: 1 },
+                { name: "Sardine", xp: 40, level: 1 },
+                { name: "Ugthanki meat", xp: 40, level: 1 },
+                { name: "Herring", xp: 50, level: 5 },
+                { name: "Mackerel", xp: 60, level: 10 },
+                { name: "Redberry Pie", xp: 78, level: 10 },
+                { name: "Trout", xp: 70, level: 15 },
+                { name: "Cod", xp: 75, level: 18 },
+                { name: "Pike", xp: 80, level: 20 },
+                { name: "Meat Pie", xp: 110, level: 20 },
+                { name: "Salmon", xp: 90, level: 25 },
+                { name: "Stew", xp: 117, level: 25 },
+                { name: "Cooked Chompy", xp: 100, level: 30 },
+                { name: "Tuna", xp: 100, level: 30 },
+                { name: "Apple Pie", xp: 130, level: 30 },
+                { name: "Plain Pizza", xp: 143, level: 35 },
+                { name: "Jug of Wine", xp: 200, level: 35 },
+                { name: "Lobster", xp: 120, level: 40 },
+                { name: "Cake", xp: 180, level: 40 },
+                { name: "Bass", xp: 130, level: 43 },
+                { name: "Swordfish", xp: 140, level: 45 },
+                { name: "Meat Pizza", xp: 169, level: 45 },
+                { name: "Chocolate Cake", xp: 210, level: 50 },
+                { name: "Lava Eel", xp: 30, level: 53 },
+                { name: "Anchovy Pizza", xp: 182, level: 55 },
+                { name: "Pitta Bread", xp: 40, level: 58 },
+                { name: "Curry", xp: 280, level: 60 },
+                { name: "Pineapple Pizza", xp: 195, level: 65 },
+                { name: "Shark", xp: 210, level: 80 },
+                { name: "Sea Turtle", xp: 211.3, level: 82 },
+                { name: "Manta Ray", xp: 216.2, level: 91 }
+            ];
 
             // Update progress bar
             const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
@@ -115,13 +126,14 @@
             tableBody.innerHTML = ""; 
 
             // Generate table
-            for (let food in foods) {
-                let foodCount = Math.ceil(xpNeeded / foods[food]); 
+            for (let food of foods) {
+                let foodCount = Math.ceil(xpNeeded / food.xp);
 
                 let row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><img src="${food.toLowerCase().replace(/\s+/g, '_')}.png" alt="${food}"> ${food}</td>
-                    <td>${foods[food]}</td>
+                    <td>${food.level}</td>
+                    <td><img src="${food.name.toLowerCase().replace(/\s+/g, '_')}.png" alt="${food.name}"> ${food.name}</td>
+                    <td>${food.xp}</td>
                     <td>${formatNumber(foodCount)}</td>
                 `;
                 tableBody.appendChild(row);
