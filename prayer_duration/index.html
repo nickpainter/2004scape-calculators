@@ -84,6 +84,8 @@
             <option value="5">Monk's Robe Bottom (+5)</option>
         </select><br>
         <h2>Your prayer will last: <br><span id="prayerDuration" class="gold-text"></span></h2>
+        <p><span id="rapidHealText" class="gold-text"></span></p> <!-- Special message for Rapid Heal -->
+        <p><span id="totalHpRestoredText" class="gold-text"></span></p> <!-- Total HP Restored -->
     </div>
     
     <script>
@@ -110,6 +112,22 @@
                 : `${seconds} seconds`;
             
             document.getElementById("prayerDuration").textContent = formattedDuration;
+
+        // If Rapid Heal is selected, calculate HP restored
+            const selectedPrayer = document.getElementById("prayer").value;
+            // Rapid Heal
+            if (selectedPrayer == 3.3333) {
+                // 1 HP for every 30 seconds
+                const hpRestored = (modifiedDuration / 30);
+                document.getElementById("rapidHealText").textContent = `Rapid Heal HP restored: ${hpRestored.toFixed(0)}`;
+                // Calculate and display total HP restored
+                const totalHpRestored = hpRestored * 2;
+                document.getElementById("totalHpRestoredText").textContent = `Total HP restored: ${totalHpRestored.toFixed(0)}`;
+            } else {
+                // Clear the message if not Rapid Heal
+                document.getElementById("rapidHealText").textContent = "";
+                document.getElementById("totalHpRestoredText").textContent = "";
+            }
         }
         
         function calculateFromEquipment() {
