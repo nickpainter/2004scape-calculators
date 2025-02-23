@@ -219,6 +219,11 @@
             "Runite Bar": { xp: 50, level: 85 }
         };
 
+        const barXP = {
+            "bronze": 6.2, "iron": 12.5, "steel": 17.5,
+            "mithril": 22.5, "adamant": 37.5, "rune": 50
+        };
+
         // Convert level to XP
         function getXPForLevel(level) {
             let total = 0;
@@ -301,9 +306,16 @@
                     // Skip items above target level
                     // Use for later
                 //    if (data.level > targetLevel) continue;
-            
-                    const amountNeeded = Math.ceil(xpNeeded / data.xp);
-            
+                    
+                    let amountNeeded;
+
+                    if (mode === 'smelting_bars') {
+                        const barXPvalue = barXP[selectedMetal];
+                        amountNeeded = Math.ceil(xpNeeded / ( data.xp + (data.bars * barXPvalue)));
+                    } else {
+                        amountNeeded = Math.ceil(xpNeeded / data.xp);
+                    }
+
                     const row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${data.level}</td>
