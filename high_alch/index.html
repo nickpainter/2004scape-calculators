@@ -22,8 +22,11 @@
         <label>Quantity:</label>
         <input type="number" id="quantity" min="1" max="2147483647" value="1"><br>
 
-        <label title="Enter the high alchemy value of an item">Item Value:</label>
+        <label title="Enter the value of an item">Item Value:</label>
         <input type="number" id="itemValue" min="1" max="2147483647" value="1"><br>
+
+        <label title="Enter the high alchemy value of an item">High Alch Value:</label>
+        <input type="number" id="haValue" min="1" max="2147483647" value="1"><br>
 
         <label title="If you're using your own runes, enter 0">Nature Rune Price:</label>
         <input type="number" id="natureRunePrice" min="0" max="2147483647" value="0"><br>
@@ -37,6 +40,11 @@
     </div>
     
     <script>
+        // Adds commas for thousands
+        function formatNumber(num) {
+            return num.toLocaleString(); 
+        }
+
         function calculateAlchProfit() {
             const quantity = parseInt(document.getElementById("quantity").value);
             const itemValue = parseInt(document.getElementById("itemValue").value);
@@ -48,11 +56,37 @@
             const costOfNatures = natureRunePrice * quantity;
             const totalMagicXP = quantity * 65;
             
-            document.getElementById("totalProfit").textContent = totalAlchProfit + " gp";
-            document.getElementById("profitFromAlch").textContent = profitFromAlch + " gp";
-            document.getElementById("costOfNatures").textContent = costOfNatures + " gp";
-            document.getElementById("totalMagicXP").textContent = totalMagicXP + " XP";
+            document.getElementById("totalProfit").textContent = formatNumber(totalAlchProfit) + " gp";
+            document.getElementById("profitFromAlch").textContent = formatNumber(profitFromAlch) + " gp";
+            document.getElementById("costOfNatures").textContent = formatNumber(costOfNatures) + " gp";
+            document.getElementById("totalMagicXP").textContent = formatNumber(totalMagicXP) + " XP";
         }
+
+        // Event listener to update High Alch value when Item Value is changed
+        document.getElementById("itemValue").addEventListener("input", function() {
+            const itemValue = parseInt(document.getElementById("itemValue").value);
+            const highAlchValue = Math.floor(itemValue * 0.6);
+            document.getElementById("haValue").value = highAlchValue;
+            calculateAlchProfit();  // Recalculate the profit with updated values
+        });
+
+        // Event listener to update Item Value when High Alch value is changed
+        document.getElementById("haValue").addEventListener("input", function() {
+            const highAlchValue = parseInt(document.getElementById("haValue").value);
+            const itemValue = Math.floor(highAlchValue / 0.6);
+            document.getElementById("itemValue").value = itemValue;
+            calculateAlchProfit();  // Recalculate the profit with updated values
+        });
+
+        // Event listener to update profit when Quantity is changed
+        document.getElementById("quantity").addEventListener("input", function() {
+            calculateAlchProfit();  // Recalculate the profit with updated quantity
+        });
+
+        // Event listener to update profit when Nature Rune Price is changed
+        document.getElementById("natureRunePrice").addEventListener("input", function() {
+            calculateAlchProfit();  // Recalculate the profit with updated nature rune price
+        });
     </script>
 </body>
 </html>
