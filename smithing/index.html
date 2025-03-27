@@ -21,6 +21,9 @@
     <h1>2004Scape Smithing Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchSmithingXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
         
@@ -223,6 +226,37 @@
             "bronze": 6.2, "iron": 12.5, "steel": 17.5,
             "mithril": 22.5, "adamant": 37.5, "rune": 50
         };
+
+        async function fetchSmithingXP() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Find the Smithing XP data (Type 14 corresponds to Smithing)
+                const smithingData = data.find(stat => stat.type === 14);
+
+                if (smithingData) {
+                    const smithingXP = Math.floor(smithingData.value / 10); // Convert XP format (stored as XP * 10)
+                    document.getElementById("currentXP").value = smithingXP; // Autofill the XP field
+                } else {
+                    alert("Smithing XP not found."); // Show alert if no data is found
+                }
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
 
         // Convert level to XP
         function getXPForLevel(level) {
