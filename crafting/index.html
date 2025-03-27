@@ -21,6 +21,9 @@
     <h1>2004Scape Crafting Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchCraftingXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
         
@@ -56,6 +59,37 @@
     </div>
     <script>
         let mode = 'needle_thread';
+
+        async function fetchCraftingXP() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Find the Crafting XP data (Type 13 corresponds to Crafting)
+                const craftingData = data.find(stat => stat.type === 13);
+
+                if (craftingData) {
+                    const craftingXP = Math.floor(craftingData.value / 10); // Convert XP format (stored as XP * 10)
+                    document.getElementById("currentXP").value = craftingXP; // Autofill the XP field
+                } else {
+                    alert("Crafting XP not found."); // Show alert if no data is found
+                }
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
 
         // Convert level to XP
         function getXPForLevel(level) {

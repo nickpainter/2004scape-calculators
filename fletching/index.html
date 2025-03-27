@@ -21,24 +21,26 @@
     <h1>2004Scape Fletching Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchFletchingXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
         
         <label>Desired Level:</label>
         <input type="number" id="targetLevel" min="2" max="99" value="99">
         
-        <button onclick="calculateFletching()">Calculate</button>
-
-        <br>
+        <button onclick="calculateFletching()">Calculate</button><br>
 
         <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-bar" id="progressBar">0%</div>
         </div>
 
-        <button onclick="setMode('unstrung_stringing')">Unstrung/Stringing</button>
         <button onclick="setMode('complete')">Fletching & Stringing</button>
-        <button onclick="setMode('arrows')">Complete Arrows</button>
+        <button onclick="setMode('unstrung')">Unstrung</button>
+        <button onclick="setMode('stringing')">Stringing</button>
+        <button onclick="setMode('arrows')">Arrows</button>
 
         <!-- Results Table -->
         <table id="resultsTable">
@@ -52,10 +54,42 @@
             </thead>
             <tbody></tbody>
         </table>
+        <p>*arrow experience includes every step of the way</p>
     </div>
     <script>
-        let mode = 'unstrung_stringing';
+        let mode = 'complete';
         
+        async function fetchFletchingXP() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Find the Fletching XP data (Type 10 corresponds to Fletching)
+                const fletchingData = data.find(stat => stat.type === 10);
+
+                if (fletchingData) {
+                    const fletchingXP = Math.floor(fletchingData.value / 10); // Convert XP format (stored as XP * 10)
+                    document.getElementById("currentXP").value = fletchingXP; // Autofill the XP field
+                } else {
+                    alert("Fletching XP not found."); // Show alert if no data is found
+                }
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
+
         // Convert level to XP
         function getXPForLevel(level) {
             let total = 0;
@@ -87,21 +121,23 @@
             
             const xpNeeded = targetXP - currentXP;
             const items = {
-                "Shortbow": [5, 10, 1],
-                "Longbow": [10, 20, 5],
-                "Oak Shortbow": [16.5, 33, 20],
-                "Oak Longbow": [25, 50, 25],
-                "Willow Shortbow": [33.3, 66.5, 35],
-                "Willow Longbow": [41.5, 83, 40],
-                "Maple Shortbow": [50, 100, 50],
-                "Maple Longbow": [58.3, 116.5, 55],
-                "Yew Shortbow": [67.5, 134, 65],
-                "Yew Longbow": [75, 150, 70],
-                "Magic Shortbow": [83.3, 166.5, 80],
-                "Magic Longbow": [91.5, 182, 85]
+                "Shortbow": [5, 5, 10, 1],
+                "Longbow": [10, 10, 20, 5],
+                "Oak Shortbow": [16.5, 16.5, 33, 20],
+                "Oak Longbow": [25, 25, 50, 25],
+                "Willow Shortbow": [33.3, 33.2, 66.5, 35],
+                "Willow Longbow": [41.5, 41.5, 83, 40],
+                "Maple Shortbow": [50, 50, 100, 50],
+                "Maple Longbow": [58.3, 58.2, 116.5, 55],
+                "Yew Shortbow": [67.5, 67.5, 134, 65],
+                "Yew Longbow": [75, 75, 150, 70],
+                "Magic Shortbow": [83.3, 83.2, 166.5, 80],
+                "Magic Longbow": [91.5, 91.5, 182, 85]
             };
             
             const arrows = {
+                "Arrow Shaft": [5, 1],
+                "Headless Arrow": [20, 1],
                 "Bronze Arrows": [39.5, 1],
                 "Iron Arrows": [57.5, 15],
                 "Steel Arrows": [95, 30],
@@ -137,15 +173,27 @@
                 }
             } else {
                 for (let item in items) {
-                    let [xpPerAction, xpFull, levelReq] = items[item];
-                    let count = Math.ceil(xpNeeded / (mode === 'unstrung_stringing' ? xpPerAction : xpFull));
-                    let itemName = mode === 'complete' ? item : `${item} (u)`;
+                    let [xpPerAction, xpStringing, xpFull, levelReq] = items[item];
+                    let xpToUse;
+                    let itemName = item;
+
+                    if (mode === 'unstrung') {
+                        xpToUse = xpPerAction;
+                        itemName += " (u)";
+                    } else if (mode === 'stringing') {
+                        xpToUse = xpStringing;
+                        itemName += " (u)";
+                    } else {
+                        xpToUse = xpFull;
+                    }
+
+                    let count = Math.ceil(xpNeeded / xpToUse);
                     
                     let row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${levelReq}</td>
                         <td><img src="${itemName.toLowerCase().replace(/\s+/g, '_')}.png" alt="${itemName}"> ${itemName}</td>
-                        <td>${mode === 'unstrung_stringing' ? xpPerAction : xpFull}</td>
+                        <td>${xpToUse}</td>
                         <td>${formatNumber(count)}</td>
                     `;
                     tableBody.appendChild(row);

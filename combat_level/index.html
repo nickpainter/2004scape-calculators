@@ -12,7 +12,7 @@
         table { width: 100%; margin: 20px auto; border-collapse: collapse; }
         th, td { border: 1px solid gold; padding: 8px; text-align: center; }
         th { background-color: #222; color: gold; }
-        .container { max-width: 400px; margin: 20px auto; }
+        .container { max-width: 522px; margin: 20px auto; }
         .gold-text { color: gold; font-weight: bold; }
     </style>
 </head>
@@ -20,6 +20,9 @@
     <h1>2004Scape Combat Level Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchCombatLevels()">Fetch Levels</button><br>
         <label>Attack:</label>
         <input type="number" id="attack" min="1" max="99" value="1"><br>
         <label>Strength:</label>
@@ -40,6 +43,47 @@
     </div>
 
     <script>
+        async function fetchCombatLevels() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Stats to retrieve (key = HTML element ID, value = API type)
+                const statsToFetch = {
+                    attack: 1,
+                    strength: 3,
+                    defence: 2,
+                    hitpoints: 4,
+                    ranged: 5,
+                    magic: 7,
+                    prayer: 6
+                };
+
+                // Loop through each stat and update the respective element
+                Object.entries(statsToFetch).forEach(([statName, type]) => {
+                    const statData = data.find(stat => stat.type === type);
+                    
+                    if (statData) {
+                        document.getElementById(statName).value = statData.level; // Update input value
+                    }
+                });
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
+
         function calculateCombatLevel() {
             let attack = parseInt(document.getElementById("attack").value);
             let strength = parseInt(document.getElementById("strength").value);

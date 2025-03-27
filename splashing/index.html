@@ -21,6 +21,9 @@
     <h1>2004Scape Splashing Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchMagicXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
         
@@ -49,7 +52,38 @@
             <tbody></tbody>
         </table>
     </div>
-    <script>        
+    <script>
+        async function fetchMagicXP() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Find the Magic XP data (Type 7 corresponds to Magic)
+                const magicData = data.find(stat => stat.type === 7);
+
+                if (magicData) {
+                    const magicXP = Math.floor(magicData.value / 10); // Convert XP format (stored as XP * 10)
+                    document.getElementById("currentXP").value = magicXP; // Autofill the XP field
+                } else {
+                    alert("Magic XP not found."); // Show alert if no data is found
+                }
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
+
         // Convert level to XP
         function getXPForLevel(level) {
             let total = 0;
