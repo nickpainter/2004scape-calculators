@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2004Scape Firemaking Calculator</title>
+    <title>2004Scape Fishing Calculator</title>
     <style>
         a { color: white; text-decoration: none; display: block; }
         body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
@@ -17,36 +17,36 @@
         .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
     </style>
 </head>
-<body onload="calculateLogs()">
-    <h1>2004Scape Firemaking Calculator</h1>
+<body onload="calculateFish()">
+    <h1>2004Scape Fishing Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
         <label>Username:</label>
         <input type="text" id="username">
-        <button onclick="fetchFiremakingXP()">Fetch XP</button><br>
+        <button onclick="fetchFishingXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
         
         <label>Desired Level:</label>
         <input type="number" id="targetLevel" min="2" max="99" value="99">
         
-        <button onclick="calculateLogs()">Calculate</button>
-        
+        <button onclick="calculateFish()">Calculate</button>
+
         <br>
 
         <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-bar" id="progressBar">0%</div>
         </div>
-
+                
         <!-- Results Table -->
         <table id="resultsTable">
             <thead>
                 <tr>
                     <th>Level</th>
-                    <th>Log Type</th>
-                    <th>XP per Log</th>
-                    <th>Logs Needed</th>
+                    <th>Fish</th>
+                    <th>XP per Catch</th>
+                    <th>Estimated Catches</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -54,7 +54,7 @@
     </div>
 
     <script>
-        async function fetchFiremakingXP() {
+        async function fetchFishingXP() {
             const username = document.getElementById("username").value.trim();
             if (!username) return alert("Please enter a username.");
 
@@ -70,14 +70,14 @@
 
                 const data = await response.json(); // Convert response to JSON
 
-                // Find the Firemaking XP data (Type 12 corresponds to Firemaking)
-                const firemakingData = data.find(stat => stat.type === 12);
+                // Find the Fishing XP data (Type 11 corresponds to Fishing)
+                const fishingData = data.find(stat => stat.type === 11);
 
-                if (firemakingData) {
-                    const firemakingXP = Math.floor(firemakingData.value / 10); // Convert XP format (stored as XP * 10)
-                    document.getElementById("currentXP").value = firemakingXP; // Autofill the XP field
+                if (fishingData) {
+                    const fishingXP = Math.floor(fishingData.value / 10); // Convert XP format (stored as XP * 10)
+                    document.getElementById("currentXP").value = fishingXP; // Autofill the XP field
                 } else {
-                    alert("Firemaking XP not found."); // Show alert if no data is found
+                    alert("Fishing XP not found."); // Show alert if no data is found
                 }
             } catch (error) {
                 console.error(error); // Log errors for debugging
@@ -89,38 +89,48 @@
         function getXPForLevel(level) {
             let total = 0;
             for (let i = 1; i < level; i++) {
-              total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+                total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
             }
             return Math.floor(total / 4);
         }
-        
+
         // Adds commas for thousands
         function formatNumber(num) {
             return num.toLocaleString(); 
         }
 
-        // Calculate how many logs needed
-        function calculateLogs() {
+        // Calculate how many fish needed
+        function calculateFish() {
             const currentXP = parseInt(document.getElementById("currentXP").value);
             const targetLevel = parseInt(document.getElementById("targetLevel").value);
             const targetXP = getXPForLevel(targetLevel);
-
+                        
             if (targetXP <= currentXP) {
                 alert("Target level must be higher than current XP.");
                 return;
             }
-
+            
             const xpNeeded = targetXP - currentXP;
-            const logs = [
-                { name: "Logs", xp: 40, level: 1 },
-                { name: "Achey Tree Logs", xp: 40, level: 1 },
-                { name: "Oak Logs", xp: 60, level: 15 },
-                { name: "Willow Logs", xp: 90, level: 30 },
-                { name: "Maple Logs", xp: 135, level: 45 },
-                { name: "Yew Logs", xp: 202.5, level: 60 },
-                { name: "Magic Logs", xp: 303.8, level: 75 }
+            const fishes = [
+                { name: "Shrimps", xp: 10, level: 1 },
+                { name: "Sardine", xp: 20, level: 5 },
+                { name: "Herring", xp: 30, level: 10 },
+                { name: "Anchovies", xp: 40, level: 15 },
+                { name: "Mackerel", xp: 20, level: 16 },
+                { name: "Trout", xp: 50, level: 20 },
+                { name: "Cod", xp: 45, level: 23 },
+                { name: "Pike", xp: 45, level: 25 },
+                { name: "Salmon", xp: 70, level: 30 },
+                { name: "Tuna", xp: 80, level: 35 },
+                { name: "Lobster", xp: 90, level: 40 },
+                { name: "Bass", xp: 100, level: 46 },
+                { name: "Swordfish", xp: 100, level: 50 },
+                { name: "Lava Eel", xp: 60, level: 53 },
+                { name: "Shark", xp: 110, level: 76},
+                { name: "Sea Turtle", xp: 57, level: 79 },
+                { name: "Manta Ray", xp: 69, level: 81 }
             ];
-
+            
             // Update progress bar
             const progressPercentage = ((currentXP / targetXP) * 100).toFixed(1);
             const progressBar = document.getElementById("progressBar");
@@ -129,23 +139,22 @@
             const tableBody = document.querySelector("#resultsTable tbody");
 
             // Clear previous results
-            tableBody.innerHTML = ""; 
+            tableBody.innerHTML = "";
 
             // Generate table
-            for (let log of logs) {
-                let logCount = Math.ceil(xpNeeded / log.xp); 
-
+            for (let fish of fishes) {
+                let estimatedCatches = Math.ceil(xpNeeded / fish.xp);
+                
                 let row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${log.level}</td>
-                    <td><img src="${log.name.toLowerCase().replace(/\s+/g, "_")}.png" alt="${log.name}"> ${log.name}</td>
-                    <td>${log.xp}</td>
-                    <td>${formatNumber(logCount)}</td>
+                    <td>${fish.level}</td>
+                    <td><img src="raw_${fish.name.toLowerCase().replace(/\s+/g, "_")}.png" alt="${fish.name}"> ${fish.name}</td>
+                    <td>${fish.xp}</td>
+                    <td>${formatNumber(estimatedCatches)}</td>
                 `;
                 tableBody.appendChild(row);
             }
         }
     </script>
-
 </body>
 </html>
