@@ -11,39 +11,46 @@
         p { color: gold; font-weight: bold; }
         .container { max-width: 522px; margin: 20px auto; }
         .gold-text { color: gold; font-weight: bold; }
+        .prayer-grid { display: grid; grid-template-columns: repeat(3, 1fr); justify-content: center; align-items: center; max-width: 125px; margin: auto; gap: 10px; }
+        .prayer { justify-self: center; cursor: pointer; border: 2px solid transparent; }
+        .prayer.active { border: 2px solid gold; }
     </style>
 </head>
 <body>
     <h1>2004Scape Prayer Duration Calculator</h1>
     <a href="../index.html">[Home]</a>
     <div class="container">
+        <label>Username:</label>
+        <input type="text" id="username">
+        <button onclick="fetchPrayerLevel()">Fetch Level</button><br>
         <label>Prayer Level:</label>
         <input type="number" id="prayerLevel" min="1" max="99" value="1">
-        
+
         <label>Prayer Bonus:</label>
         <input type="number" id="prayerBonus" min="0" max="24" value="0">
         
         <button onclick="calculatePrayerDuration()">Calculate</button>
         <br>
-        <p>Prayer</p>
-        <label>Select Prayer:</label>
-                <select id="prayer" onchange="calculatePrayerDuration()">
-                    <option value="5">Thick Skin</option>
-                    <option value="5">Burst of Strength</option>
-                    <option value="5">Clarity of Thought</option>
-                    <option value="10">Rock Skin</option>
-                    <option value="10">Superhuman Strength</option>
-                    <option value="10">Improved Reflexes</option>
-                    <option value="1.6667">Rapid Restore</option>
-                    <option value="3.3333">Rapid Heal</option>
-                    <option value="3">Protect Item</option>
-                    <option value="20">Steel Skin</option>
-                    <option value="20">Ultimate Strength</option>
-                    <option value="20">Incredible Reflexes</option>
-                    <option value="20">Protect from Magic</option>
-                    <option value="20">Protect from Missiles</option>
-                    <option value="20">Protect from Melee</option>
-                </select><br>
+
+        <p>Click on the prayers you want to activate:</p>
+        <div class="prayer-grid">
+            <img src="thick_skin.png" class="prayer" data-drain="5" data-name="Thick Skin" title="Thick Skin: +5% Defense">
+            <img src="burst_of_strength.png" class="prayer" data-drain="5" data-name="Burst of Strength" title="Burst of Strength: +5% Strength">
+            <img src="clarity_of_thought.png" class="prayer" data-drain="5" data-name="Clarity of Thought" title="Clarity of Thought: +5% Attack">
+            <img src="rock_skin.png" class="prayer" data-drain="10" data-name="Rock Skin" title="Rock Skin: +10% Defense">
+            <img src="superhuman_strength.png" class="prayer" data-drain="10" data-name="Superhuman Strength" title="Superhuman Strength: +10% Strength">
+            <img src="improved_reflexes.png" class="prayer" data-drain="10" data-name="Improved Reflexes" title="Improved Reflexes: +10% Attack">
+            <img src="rapid_restore.png" class="prayer" data-drain="1.6667" data-name="Rapid Restore" title="Rapid Restore: Halves restore time for stats">
+            <img src="rapid_heal.png" class="prayer" data-drain="3.3333" data-name="Rapid Heal" title="Rapid Heal: Halves HP drain rate">
+            <img src="protect_item.png" class="prayer" data-drain="3" data-name="Protect Item" title="Protect Item: Keep 1 extra item on death">
+            <img src="steel_skin.png" class="prayer" data-drain="20" data-name="Steel Skin" title="Steel Skin: +15% Defense">
+            <img src="ultimate_strength.png" class="prayer" data-drain="20" data-name="Ultimate Strength" title="Ultimate Strength: +15% Strength">
+            <img src="incredible_reflexes.png" class="prayer" data-drain="20" data-name="Incredible Reflexes" title="Incredible Reflexes: +15% Attack">
+            <img src="protect_from_magic.png" class="prayer" data-drain="20" data-name="Protect from Magic" title="Protect from Magic: 100% protection from magic attacks">
+            <img src="protect_from_missiles.png" class="prayer" data-drain="20" data-name="Protect from Missiles" title="Protect from Missiles: 100% protection from ranged attacks">
+            <img src="protect_from_melee.png" class="prayer" data-drain="20" data-name="Protect from Melee" title="Protect from Melee: 100% protection from melee attacks">
+        </div>
+
         <p>Equipment</p>
         <label>Necklace:</label>
         <select id="necklace">
@@ -84,18 +91,77 @@
             <option value="5">Monk's Robe Bottom (+5)</option>
         </select><br>
         <h2>Your prayer will last: <br><span id="prayerDuration" class="gold-text"></span></h2>
-        <p><span id="rapidHealText" class="gold-text"></span></p> <!-- Special message for Rapid Heal -->
-        <p><span id="totalHpRestoredText" class="gold-text"></span></p> <!-- Total HP Restored -->
+        <!-- Special message for Rapid Heal -->
+        <p><span id="rapidHealText" class="gold-text"></span></p>
+        <!-- Total HP Restored -->
+        <p><span id="totalHpRestoredText" class="gold-text"></span></p> 
     </div>
     
     <script>
+        async function fetchPrayerLevel() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) return alert("Please enter a username.");
+
+            const apiUrl = `https://2004.lostcity.rs/api/hiscores/player/${encodeURIComponent(username)}`;
+            const corsProxy = "https://api.allorigins.win/raw?url=";
+
+            try {
+                // Fetch data from the API through the CORS proxy
+                const response = await fetch(corsProxy + apiUrl);
+                
+                // Check if the request was successful
+                if (!response.ok) throw new Error("Failed to fetch data.");
+
+                const data = await response.json(); // Convert response to JSON
+
+                // Find the Prayer Level data (Type 6 corresponds to Prayer)
+                const prayerData = data.find(stat => stat.type === 6);
+
+                if (prayerData) {
+                    const prayerXP = Math.floor(prayerData.level);
+                    document.getElementById("prayerLevel").value = prayerXP; // Autofill the Level field
+                } else {
+                    alert("Prayer Level not found."); // Show alert if no data is found
+                }
+            } catch (error) {
+                console.error(error); // Log errors for debugging
+                alert("Error fetching data."); // Alert user of an error
+            }
+        }
+
+        let selectedPrayers = [];
+
+        document.querySelectorAll(".prayer").forEach(img => {
+            img.addEventListener("click", function() {
+                const prayerName = this.dataset.name;
+                const drainValue = parseFloat(this.dataset.drain);
+
+                if (selectedPrayers.some(prayer => prayer.name === prayerName)) {
+                    // Remove if already selected
+                    selectedPrayers = selectedPrayers.filter(prayer => prayer.name !== prayerName);
+                    this.classList.remove("active");
+                } else {
+                    // Add if not selected
+                    selectedPrayers.push({ name: prayerName, drain: drainValue });
+                    this.classList.add("active");
+                }
+
+                calculatePrayerDuration();
+            });
+        });
+
         function calculatePrayerDuration() {
             const prayerBonus = parseInt(document.getElementById("prayerBonus").value);
             const prayerLevel = parseInt(document.getElementById("prayerLevel").value);
-            const drainRatePerMinute = parseFloat(document.getElementById("prayer").value);
+            const totalDrainRate = selectedPrayers.reduce((sum, p) => sum + p.drain, 0);
             
+            if (totalDrainRate === 0) {
+                document.getElementById("prayerDuration").textContent = "";
+                return;
+            }
+
             // Convert drain rate per minute to per second
-            const drainRatePerSecond = drainRatePerMinute / 60;
+            const drainRatePerSecond = totalDrainRate / 60;
             
             // Calculate base duration (seconds total)
             let baseDuration = prayerLevel / drainRatePerSecond;
@@ -106,25 +172,21 @@
             // Convert seconds into minutes and seconds format
             const minutes = Math.floor(modifiedDuration / 60);
             const seconds = Math.round(modifiedDuration % 60);
-
-            let formattedDuration = minutes > 0 
+            document.getElementById("prayerDuration").textContent = minutes > 0 
                 ? `${minutes} minute and ${seconds} seconds`
                 : `${seconds} seconds`;
-            
-            document.getElementById("prayerDuration").textContent = formattedDuration;
 
-        // If Rapid Heal is selected, calculate HP restored
-            const selectedPrayer = document.getElementById("prayer").value;
-            // Rapid Heal
-            if (selectedPrayer == 3.3333) {
+            // If Rapid Heal is selected, calculate HP restored
+            const rapidHealSelected = selectedPrayers.some(prayer => Math.abs(prayer.drain - 3.3333) < 0.0001);
+
+            if (rapidHealSelected) {
                 // 1 HP for every 30 seconds
                 const hpRestored = (modifiedDuration / 30);
                 document.getElementById("rapidHealText").textContent = `Rapid Heal HP restored: ${hpRestored.toFixed(0)}`;
                 // Calculate and display total HP restored
-                const totalHpRestored = hpRestored * 2;
-                document.getElementById("totalHpRestoredText").textContent = `Total HP restored: ${totalHpRestored.toFixed(0)}`;
+                document.getElementById("totalHpRestoredText").textContent = `Total HP restored: ${(hpRestored * 2).toFixed(0)}`;
             } else {
-                // Clear the message if not Rapid Heal
+                // Clear the message if Rapid Heal is deselected
                 document.getElementById("rapidHealText").textContent = "";
                 document.getElementById("totalHpRestoredText").textContent = "";
             }
@@ -141,10 +203,9 @@
             calculatePrayerDuration();
         }
 
-        document.getElementById("necklace").addEventListener("change", calculateFromEquipment);
-        document.getElementById("weapon").addEventListener("change", calculateFromEquipment);
-        document.getElementById("body").addEventListener("change", calculateFromEquipment);
-        document.getElementById("legs").addEventListener("change", calculateFromEquipment);
+        ["necklace", "weapon", "body", "legs"].forEach(id => {
+            document.getElementById(id).addEventListener("change", calculateFromEquipment);
+        });
     </script>
 </body>
 </html>
