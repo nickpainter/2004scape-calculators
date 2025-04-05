@@ -1,22 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2004Scape Agility Calculator</title>
     <style>
-        a { color: white; text-decoration: none; display: block; }
-        body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
-        img { height: 25px; vertical-align: middle; }
-        input, button { margin: 5px; font-size: 16px; }
-        table { width: 100%; margin: 20px auto; border-collapse: collapse; }
-        th, td { border: 1px solid gold; padding: 8px; text-align: center; }
-        th { background-color: #222; color: gold; }
-        .container { max-width: 522px; margin: 20px auto; }
-        .progress-bar { height: 18px; width: 0%; background-color: gold; color: black; font-weight: bold; transition: width 0.6s ease-in-out; }
-        .progress-container { width: auto; background-color: #333; border-radius: 5px; margin: 15px auto; overflow: hidden; }
+        a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        body {
+            text-align: center;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        img {
+            height: 25px;
+            vertical-align: middle;
+        }
+
+        input,
+        button {
+            margin: 5px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid gold;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #222;
+            color: gold;
+        }
+
+        .container {
+            max-width: 522px;
+            margin: 20px auto;
+        }
+
+        .progress-bar {
+            height: 18px;
+            width: 0%;
+            background-color: gold;
+            color: black;
+            font-weight: bold;
+            transition: width 0.6s ease-in-out;
+        }
+
+        .progress-container {
+            width: auto;
+            background-color: #333;
+            border-radius: 5px;
+            margin: 15px auto;
+            overflow: hidden;
+        }
     </style>
 </head>
+
 <body onload="calculateLaps()">
     <h1>2004Scape Agility Calculator</h1>
     <a href="../index.html">[Home]</a>
@@ -26,12 +81,12 @@
         <button onclick="fetchAgilityXP()">Fetch XP</button><br>
         <label>Current XP:</label>
         <input type="number" id="currentXP" min="0" max="200000000" value="0">
-        
+
         <label>Desired Level:</label>
         <input type="number" id="targetLevel" min="2" max="99" value="99">
-        
+
         <button onclick="calculateLaps()">Calculate</button>
-        
+
         <br>
 
         <!-- Progress Bar -->
@@ -64,7 +119,7 @@
             try {
                 // Fetch data from the API through the CORS proxy
                 const response = await fetch(corsProxy + apiUrl);
-                
+
                 // Check if the request was successful
                 if (!response.ok) throw new Error("Failed to fetch data.");
 
@@ -89,14 +144,14 @@
         function getXPForLevel(level) {
             let total = 0;
             for (let i = 1; i < level; i++) {
-              total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
+                total += Math.floor(i + 300 * Math.pow(2, i / 7.0));
             }
             return Math.floor(total / 4);
         }
-        
+
         // Adds commas for thousands
         function formatNumber(num) {
-            return num.toLocaleString(); 
+            return num.toLocaleString();
         }
 
         // Calculate how many laps needed
@@ -113,6 +168,7 @@
             const xpNeeded = targetXP - currentXP;
             const courses = [
                 { name: "Gnome Stronghold", xp: 86.5, level: 1 },
+                { name: "Edgeville Monkey Bars", xp: 20, level: 15 },
                 { name: "Log balance (Coal Trucks)", xp: 8.5, level: 20 },
                 { name: "Barbarian Outpost", xp: 152.5, level: 35 },
                 { name: "Wilderness", xp: 571.4, level: 52 }
@@ -126,12 +182,12 @@
             const tableBody = document.querySelector("#resultsTable tbody");
 
             // Clear previous results
-            tableBody.innerHTML = ""; 
+            tableBody.innerHTML = "";
 
             // Generate table
             for (let course of courses) {
                 let lapCount = Math.ceil(xpNeeded / course.xp);
-                
+
                 let row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${course.level}</td>
@@ -145,4 +201,5 @@
     </script>
 
 </body>
+
 </html>
